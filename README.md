@@ -6,7 +6,7 @@ Tried finding something like this online, but none of them seemed ot work.
 ```
 pip install facebook-scraper
 ```
-For better reliability you should download your facebook cookies into a cookies.json file.
+**NOTE**: For better reliability you should download your facebook cookies into a cookies.json file.
 You can use these browser extensions: 
     - for [chrome](https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg) 
     - for [firefox](https://addons.mozilla.org/en-US/firefox/addon/cookie-quick-manager/).
