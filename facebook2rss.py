@@ -24,22 +24,18 @@ def account_to_rss(profile_name, name='', page_count=2, cookies_file='', dest_fo
     if (name == ''):
         name = profile_name
 
+    print('Downloading ' + profile_name)
+
+    # fs.set_user_agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0')
+
+    posts = None
+    if cookies_file != '':
+        posts = list(fs.get_posts(profile_name, pages=page_count, cookies=cookies_file))
+    else:
+        posts = list(fs.get_posts(profile_name, pages=page_count))
+
+    print('Finished downloading posts, saving into ' + profile_name + '.xml')
     feed_file = open(os.path.join(dest_folder, profile_name) + '.xml', 'w')
-    print('Downloading into ' + profile_name + '.xml')
-
-    # if cookies_file != '':
-    #     posts = list(fs.get_posts(profile_name, pages=page_count, cookies="cookies.json"))
-    # else:
-    #     posts = list(fs.get_posts(profile_name, pages=page_count))
-
-    p_f = open('savedposts.pickle', 'rb')
-    posts = list(pickle.load(p_f))
-    p_f.close()
-
-    # p_f = open('savedposts.pickle', 'wb')
-    # pickle.dump(posts, p_f)
-    # p_f.close()
-
     content = '<?xml version="1.0" encoding="UTF-8"?>\n'
     content += '<rss version="2.0">\n'
     content += '<channel>\n'
@@ -72,20 +68,21 @@ def account_to_rss(profile_name, name='', page_count=2, cookies_file='', dest_fo
     feed_file.close()
 
 def main():
-    if len(sys.argv) < 1:
-        print('Invalid, use -h option for help')
-        return
-
-    if '-h' in sys.argv:
-        print_help()
-        return
-
     content = ''
     using_config = False
     cookie_file = ''
     using_cookie = False
     dest_folder = ''
     using_custom_dest = False
+
+    if len(sys.argv) < 1:
+        print('Invalid, use -h option for help')
+        return
+    elif '-h' in sys.argv:
+        print_help()
+        return
+    else:
+        content = [ sys.argv[1] ]
 
     for i in range(1, len(sys.argv)):
         arg = sys.argv[i]
@@ -128,23 +125,28 @@ def main():
                     print("use -h option for help")
                     return
 
-    if using_config:
-        for line in content:
-            if len(line) > 3 and line[0] != '#':
-                line.split(',')
-    else:
-        if using_cookie and using_custom_dest:
-            account_to_rss(content, cookies_file=cookies_file, dest_folder=dest_folder)
-        elif using_custom_dest:
-            print('Importing a cookies file is recommended: ')
-            account_to_rss(content, cookies_file=cookies_file, dest_folder=dest_folder)
-        elif using_cookie:
-            account_to_rss(content, cookies_file=cookies_file, dest_folder=dest_folder)
-        else:
-            print('Importing a cookies file is recommended: ')
-            print('Firefox (https://addons.mozilla.org/en-US/firefox/addon/cookie-quick-manager/)')
-            print('Chrome  (https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)')
-            account_to_rss(content)
+    for line in content:
+        if len(line) > 3 and line[0] != '#':
+            profile_name = line.split('\n')[0].split('#')[0].split(',')
+            name = profile_name[0]
+            if len(profile_name) == 2:
+                name = profile_name[1]
+            profile_name = profile_name[0]
+
+            if using_cookie and using_custom_dest:
+                account_to_rss(profile_name, name=name, cookies_file=cookies_file, dest_folder=dest_folder)
+            elif using_custom_dest:
+                print('Importing a cookies file is recommended: ')
+                print('Firefox (https://addons.mozilla.org/en-US/firefox/addon/cookie-quick-manager/)')
+                print('Chrome  (https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)')
+                account_to_rss(profile_name, name=name, dest_folder=dest_folder)
+            elif using_cookie:
+                account_to_rss(profile_name, name=name, cookies_file=cookies_file)
+            else:
+                print('Importing a cookies file is recommended: ')
+                print('Firefox (https://addons.mozilla.org/en-US/firefox/addon/cookie-quick-manager/)')
+                print('Chrome  (https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg)')
+                account_to_rss(profile_name, name=name)
 
 
 if __name__ == "__main__":
