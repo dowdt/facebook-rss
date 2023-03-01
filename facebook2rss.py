@@ -1,9 +1,9 @@
 #!/bin/python
-import facebook_scraper as fs
 import email
 import pickle
 import sys
 import os
+from facebook_scraper import get_posts
 
 def print_help():
     print("""Facebook to RSS converter
@@ -25,8 +25,6 @@ def account_to_rss(profile_name, name='', page_count=2, cookies_file='', dest_fo
         name = profile_name
 
     print('Downloading ' + profile_name)
-
-    # fs.set_user_agent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0')
 
     posts = None
     if cookies_file != '':
@@ -61,9 +59,9 @@ def account_to_rss(profile_name, name='', page_count=2, cookies_file='', dest_fo
 
             print('Saved post ' + str(i + 1) + '/' + str(len(posts)))
 
-        content += '</channel>\n'
-        content += '</rss>\n'
 
+    content += '</channel>\n'
+    content += '</rss>\n'
     feed_file.write(content)
     feed_file.close()
 
@@ -75,7 +73,7 @@ def main():
     dest_folder = ''
     using_custom_dest = False
 
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2:
         print('Invalid, use -h option for help')
         return
     elif '-h' in sys.argv:
